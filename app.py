@@ -31,13 +31,17 @@ def get_events():
 
 @app.route("/events", methods=["POST"])
 def create_event():
-    # CHANGED HERE: Added silent=True
     data = request.get_json(silent=True)
     
     if not data or "title" not in data:
         return jsonify({"error": "Bad Request: 'title' is required"}), 400
         
-    new_id = events[-1].id + 1 if events else 1
+    # We added a try/except block here just in case the events list is empty
+    try:
+        new_id = events[-1].id + 1
+    except IndexError:
+        new_id = 1
+        
     new_event = Event(id=new_id, title=data["title"])
     events.append(new_event)
     
@@ -45,7 +49,6 @@ def create_event():
 
 @app.route("/events/<int:event_id>", methods=["PATCH"])
 def update_event(event_id):
-    # CHANGED HERE: Added silent=True
     data = request.get_json(silent=True)
     
     if not data or "title" not in data:
